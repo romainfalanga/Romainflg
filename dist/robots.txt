@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://romainflg.fr/sitemap.xml
+
+# Pages importantes
+Allow: /
+Allow: /project/*
+Allow: /profile
+
+# Pages admin (privées)
+Disallow: /admin/*
