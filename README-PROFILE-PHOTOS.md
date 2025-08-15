@@ -1,5 +1,7 @@
 # 📸 Guide des Photos de Profil
 
+> **Note**: Ce projet utilise maintenant Netlify Forms pour la gestion des candidatures, sans base de données.
+
 ## Structure du système
 
 ```

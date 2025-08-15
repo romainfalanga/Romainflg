@@ -18,7 +18,7 @@ export default function HomePage() {
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Bienvenue sur
               <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                RomainFLG.fr
+                Romain FLG
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-blue-100 mb-8 font-medium">
@@ -51,7 +51,7 @@ export default function HomePage() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Bienvenue sur
             <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-              romainflg.fr
+              Romain FLG
             </span>
           </h1>
           <div className="mt-8">
@@ -111,7 +111,7 @@ export default function HomePage() {
                     </p>
                     
                     <Link
-                      to={`/project/${project.id}`}
+                      to={`/project/${project.slug}`}
                       className="inline-flex items-center justify-center w-full sm:w-auto space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium group-hover:shadow-lg text-sm sm:text-base"
                     >
                       <span>Voir le projet</span>

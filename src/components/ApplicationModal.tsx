@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { X, Send, User, Mail, Briefcase, MessageSquare } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface ApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectName: string;
-  preselectedPosition?: 'COO' | 'CM';
+  preselectedPosition?: 'CM';
 }
 
-export default function ApplicationModal({ isOpen, onClose, projectName, preselectedPosition = 'COO' }: ApplicationModalProps) {
+export default function ApplicationModal({ isOpen, onClose, projectName, preselectedPosition = 'CM' }: ApplicationModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,6 +22,7 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Mettre à jour la position quand elle change
   React.useEffect(() => {
@@ -31,52 +31,62 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
 
   if (!isOpen) return null;
 
+  // Fonction pour encoder les données au format application/x-www-form-urlencoded
+  const encode = (data: Record<string, string>) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
-      // Call the edge function to send email and store application
-      const { data, error } = await supabase.functions.invoke('send-application-email', {
-        body: {
-          project_name: projectName,
-          name: formData.name,
-          email: formData.email,
-          position: formData.position,
-          telegram: formData.telegram,
-          tiktok: formData.tiktok || null,
-          motivation: formData.motivation,
-          creativity: formData.creativity || null,
-          universe_model: formData.universeModel || null,
+      const formspreeData = {
+        'project_name': projectName || '',
+        'name': formData.name || '',
+        'email': formData.email || '',
+        'position': formData.position || '',
+        'telegram': formData.telegram || '',
+        'tiktok': formData.tiktok || '',
+        'motivation': formData.motivation || '',
+        'creativity': formData.creativity || '',
+        'universe_model': formData.universeModel || ''
+      };
+
+      const response = await fetch('https://formspree.io/f/xeozdabg', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(formspreeData)
       });
 
-      if (error) {
-        throw error;
+      if (response.ok) {
+        setIsSubmitted(true);
+        
+        setTimeout(() => {
+          setIsSubmitted(false);
+          onClose();
+          setFormData({
+            name: '',
+            email: '',
+            position: 'COO',
+            motivation: '',
+            creativity: '',
+            universeModel: '',
+            tiktok: '',
+            telegram: ''
+          });
+        }, 3000);
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
       }
-
-      console.log('Application submitted successfully:', data);
-      setIsSubmitted(true);
-      
-      // Fermer le modal après 3 secondes
-      setTimeout(() => {
-        setIsSubmitted(false);
-        onClose();
-        setFormData({
-          name: '',
-          email: '',
-          position: 'COO',
-          motivation: '',
-          creativity: '',
-          universeModel: '',
-          tiktok: '',
-          telegram: ''
-        });
-      }, 3000);
-
     } catch (error) {
-      console.error('Error submitting application:', error);
-      alert('Erreur lors de l\'envoi de la candidature. Veuillez réessayer.');
+      setSubmitError(`Erreur: ${error instanceof Error ? error.message : 'Problème de connexion'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -98,7 +108,7 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Candidature envoyée !</h3>
           <p className="text-gray-600 text-sm sm:text-base">
-            Votre candidature a été envoyée automatiquement à Romain ! Vous recevrez une réponse par email.
+            Votre candidature a été envoyée avec succès ! Vous recevrez une réponse par email.
           </p>
         </div>
       </div>
@@ -119,6 +129,24 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
           </button>
         </div>
 
+        {/* CM Description */}
+        <div className="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
+          <div className="flex items-start space-x-3">
+            <div className="p-1.5 sm:p-2 bg-purple-600 rounded-lg flex-shrink-0">
+              <MessageSquare className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-purple-900 mb-2 text-sm sm:text-base">🎯 Poste : Community Manager (20% commission)</h3>
+              <p className="text-purple-800 text-xs sm:text-sm leading-relaxed">
+                Pour devenir un des 3 CM du projet, vous devrez <strong>créer un compte TikTok dédié exclusivement au projet</strong> et vous démarquer par votre créativité.
+                Une fois le poste obtenu, vous devrez maintenir une fréquence de <strong>1 à 3 TikToks par jour</strong> pour promouvoir le projet, 
+                animer la communauté, et contribuer à la croissance de l'audience.
+                En échange de cet investissement créatif et communautaire, vous recevrez <strong>un code promo personnel et toucherez 20% de commission sur toutes les ventes où votre code promo a été utilisé</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Info Section */}
         <div className="p-4 sm:p-6 bg-blue-50 border-b border-blue-100">
           <div className="flex items-start space-x-3">
@@ -135,7 +163,17 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <form 
+          onSubmit={handleSubmit} 
+          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
+        >
+          {/* Message d'erreur */}
+          {submitError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 text-sm">{submitError}</p>
+            </div>
+          )}
+
           {/* Informations personnelles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -171,24 +209,6 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
             </div>
           </div>
 
-          {/* Poste souhaité */}
-          <div>
-            <label className="flex items-center space-x-2 text-xs sm:text-sm font-medium text-gray-700 mb-2">
-              <Briefcase className="h-4 w-4" />
-              <span>Poste souhaité *</span>
-            </label>
-            <select
-              name="position"
-              value={formData.position}
-              onChange={handleChange}
-              required
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-            >
-              <option value="COO">COO - Directeur des Opérations (15%)</option>
-              <option value="CM">CM - Community Manager (5%)</option>
-            </select>
-          </div>
-
           {/* Réseaux sociaux */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -208,15 +228,16 @@ export default function ApplicationModal({ isOpen, onClose, projectName, presele
 
             <div>
               <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
-                TikTok (optionnel)
+                Nom d'utilisateur TikTok *
               </label>
               <input
                 type="text"
                 name="tiktok"
                 value={formData.tiktok}
                 onChange={handleChange}
+                required
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="@votre_tiktok"
+                placeholder={`@${projectName.replace(/\s+/g, '').toLowerCase()}pseudo`}
               />
             </div>
           </div>
@@ -286,6 +307,7 @@ Dans ce modèle d'univers, « Dieu » est en quelque sorte dans un rêve, à la 
             <button
               type="button"
               onClick={onClose}
+              disabled={isSubmitting}
               className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
             >
               Annuler
@@ -293,7 +315,7 @@ Dans ce modèle d'univers, « Dieu » est en quelque sorte dans un rêve, à la 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center justify-center space-x-2 text-sm sm:text-base"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               {isSubmitting ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

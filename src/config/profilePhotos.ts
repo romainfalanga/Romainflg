@@ -3,7 +3,7 @@ export const profilePhotos = {
   // Ajoutez vos photos de profil ici
   // Format: 'nom-prenom': '/profile-photos/nom-prenom.jpg'
   
-  'romain-falanga': '/profile-photos/RomainFalanga.jpeg',
+  'romain-falanga': '/profile-photos/RomainFalanga.jpeg?v=2',
   
   // Exemples pour de futurs profils :
   // 'jean-dupont': '/profile-photos/jean-dupont.jpg',
