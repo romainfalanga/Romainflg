@@ -2,8 +2,8 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ExternalLink, ArrowLeft, Users, User, MessageCircle, UserPlus, HelpCircle } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { supabase } from '../lib/supabase';
 import ApplicationModal from '../components/ApplicationModal';
-import { getProfilePhoto } from '../config/profilePhotos';
 
 export default function ProjectPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -11,12 +11,49 @@ export default function ProjectPage() {
   const project = projects.find(p => p.slug === slug);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = React.useState(false);
   const [selectedPosition, setSelectedPosition] = React.useState<'CM'>('CM');
+  const [ceoProfile, setCeoProfile] = React.useState<{
+    username: string;
+    profile_photo_url: string;
+  } | null>(null);
 
   // Scroll vers le haut quand on arrive sur la page
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  // Charger le profil du CEO depuis la base de données
+  React.useEffect(() => {
+    const loadCeoProfile = async () => {
+      try {
+        // Récupérer le profil global de Romain Falanga (CEO)
+        const { data, error } = await supabase
+          .from('global_users')
+          .select('username, profile_photo_url')
+          .eq('email', 'romainfalanga83@gmail.com')
+          .single();
+
+        if (error) {
+          console.error('Erreur lors du chargement du profil CEO:', error);
+          // Fallback vers des valeurs par défaut
+          setCeoProfile({
+            username: 'Romain Falanga',
+            profile_photo_url: '/profile-photos/RomainFalanga.jpeg'
+          });
+        } else {
+          setCeoProfile(data);
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        // Fallback vers des valeurs par défaut
+        setCeoProfile({
+          username: 'Romain Falanga',
+          profile_photo_url: '/profile-photos/RomainFalanga.jpeg'
+        });
+      }
+    };
+
+    loadCeoProfile();
+  }, []);
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -83,14 +120,22 @@ export default function ProjectPage() {
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-3 sm:p-4 rounded-lg border border-blue-100 text-center">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mx-auto mb-3 shadow-lg">
                 <img 
-                  src={getProfilePhoto('romain-falanga')}
-                  alt="Romain Falanga"
+                  src={ceoProfile?.profile_photo_url || '/profile-photos/RomainFalanga.jpeg'}
+                  alt={ceoProfile?.username || 'CEO'}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/profile-photos/RomainFalanga.jpeg') {
+                      target.src = '/profile-photos/RomainFalanga.jpeg';
+                    }
+                  }}
                 />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-gray-900">CEO</h3>
               <p className="text-xs text-gray-500 mb-1">Directeur général</p>
-              <p className="text-gray-700 font-medium text-xs sm:text-sm mt-1 sm:mt-1">Romain Falanga</p>
+              <p className="text-gray-700 font-medium text-xs sm:text-sm mt-1 sm:mt-1">
+                {ceoProfile?.username || 'Romain Falanga'}
+              </p>
               <Link
                 to="/profile"
                 className="mt-2 inline-block text-sm sm:text-sm bg-blue-600 text-white px-4 sm:px-4 py-2.5 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg transform hover:scale-105"

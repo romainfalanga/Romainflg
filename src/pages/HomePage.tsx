@@ -54,16 +54,29 @@ export default function HomePage() {
               Romain FLG
             </span>
           </h1>
-          <div className="mt-8">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-16 sm:gap-4 mt-0 mb-0">
+          <div className="flex flex-row justify-center items-center gap-4 mt-2 mb-1">
             <a
-              href="https://fr.tipeee.com/romain-falanga/"
+              href="https://romainflg.fr/flg-pass"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center space-x-3 bg-white/20 backdrop-blur-sm text-white border border-white/30 px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:bg-gradient-to-r hover:from-pink-500 hover:to-red-500 hover:border-transparent transition-all duration-200 font-medium text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105 border border-blue-400/20 w-32 sm:w-auto text-center"
             >
-              <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span>Me soutenir</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10">FLG PASS</span>
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
             </a>
+            <a
+              href="https://romainflg.fr/credits"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105 border border-emerald-400/20 w-32 sm:w-auto text-center"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10">CRÉDITS</span>
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+            </a>
+          </div>
           </div>
         </div>
       </section>
