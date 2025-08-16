@@ -7,7 +7,7 @@ import AuthModal from '../AuthModal';
 
 export default function Navbar() {
   const { user, loading } = useAuth();
-  const { globalUser, loading: profileLoading } = useUserProfile('romainflg');
+  const { globalUser, loading: profileLoading, error: profileError } = useUserProfile('romainflg');
   const { projects } = useData();
   const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -51,12 +51,12 @@ export default function Navbar() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Compte</h3>
                 <div className="space-y-1">
-                  {loading || profileLoading ? (
+                  {loading || (profileLoading && !profileError) ? (
                     <div className="flex items-center space-x-3 px-3 py-2">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                       <span className="text-gray-600">Chargement...</span>
                     </div>
-                  ) : user ? (
+                  ) : user && globalUser && !profileError ? (
                     <a
                       href="/profile"
                       className="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
@@ -87,6 +87,12 @@ export default function Navbar() {
                       <User className="h-6 w-6 text-blue-600" />
                       <span className="font-medium">Se connecter</span>
                     </button>
+                  )}
+                  {profileError && (
+                    <div className="px-3 py-2 text-sm text-amber-600 bg-amber-50 rounded-lg">
+                      <p className="font-medium">⚠️ Configuration requise</p>
+                      <p className="text-xs mt-1">Variables Supabase manquantes</p>
+                    </div>
                   )}
                 </div>
               </div>
