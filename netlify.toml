@@ -1,9 +1,9 @@
 [build]
   publish = "dist"
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [context.production.environment]
   NODE_ENV = "production"
