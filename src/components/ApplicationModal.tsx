@@ -1,333 +1,177 @@
 import React, { useState } from 'react';
-import { X, Send, User, Mail, Briefcase, MessageSquare } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectName: string;
-  preselectedPosition?: 'CM';
+  position: string;
+  tiktokPlaceholder?: string;
 }
 
-export default function ApplicationModal({ isOpen, onClose, projectName, preselectedPosition = 'CM' }: ApplicationModalProps) {
+export function ApplicationModal({ isOpen, onClose, projectName, position, tiktokPlaceholder = "@projet_pseudo" }: ApplicationModalProps) {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
-    position: preselectedPosition,
-    motivation: '',
-    creativity: '',
-    universeModel: '',
-    tiktok: '',
-    telegram: ''
+    telegramName: '',
+    tiktokUsername: '',
+    motivation: ''
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Mettre à jour la position quand elle change
-  React.useEffect(() => {
-    setFormData(prev => ({ ...prev, position: preselectedPosition }));
-  }, [preselectedPosition]);
-
-  if (!isOpen) return null;
-
-  // Fonction pour encoder les données au format application/x-www-form-urlencoded
-  const encode = (data: Record<string, string>) => {
-    return Object.keys(data)
-      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-      .join("&");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const formspreeData = {
-        'project_name': projectName || '',
-        'name': formData.name || '',
-        'email': formData.email || '',
-        'position': formData.position || '',
-        'telegram': formData.telegram || '',
-        'tiktok': formData.tiktok || '',
-        'motivation': formData.motivation || '',
-        'creativity': formData.creativity || '',
-        'universe_model': formData.universeModel || ''
-      };
-
-      const response = await fetch('https://formspree.io/f/xeozdabg', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formspreeData)
-      });
-
-      if (response.ok) {
-        setIsSubmitted(true);
-        
-        setTimeout(() => {
-          setIsSubmitted(false);
-          onClose();
-          setFormData({
-            name: '',
-            email: '',
-            position: 'COO',
-            motivation: '',
-            creativity: '',
-            universeModel: '',
-            tiktok: '',
-            telegram: ''
-          });
-        }, 3000);
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
-    } catch (error) {
-      setSubmitError(`Erreur: ${error instanceof Error ? error.message : 'Problème de connexion'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    // Ici on pourrait envoyer les données à un serveur
+    console.log('Candidature soumise:', { projectName, position, ...formData });
+    alert('Candidature envoyée avec succès !');
+    onClose();
     setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+      fullName: '',
+      email: '',
+      telegramName: '',
+      tiktokUsername: '',
+      motivation: ''
     });
   };
 
-  if (isSubmitted) {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 max-w-md w-full text-center">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Send className="h-8 w-8 text-green-600" />
-          </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Candidature envoyée !</h3>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Votre candidature a été envoyée avec succès ! Vous recevrez une réponse par email.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <h2 className="text-lg sm:text-2xl font-bold text-gray-900 pr-4">Postuler pour {projectName}</h2>
+        <div className="flex items-center justify-between p-8 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-secondary-50">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Postuler pour {projectName}
+          </h2>
           <button
             onClick={onClose}
-            className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 hover:bg-white/50 rounded-xl transition-all duration-300 hover:scale-110"
           >
-            <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+            <X size={24} className="text-gray-500 hover:text-gray-700" />
           </button>
         </div>
 
-        {/* CM Description */}
-        <div className="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-          <div className="flex items-start space-x-3">
-            <div className="p-1.5 sm:p-2 bg-purple-600 rounded-lg flex-shrink-0">
-              <MessageSquare className="h-5 w-5 text-white" />
+        {/* Content */}
+        <div className="p-8">
+          {/* Position Info */}
+          <div className="mb-8">
+            <div className="flex items-center space-x-4 mb-6">
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">Poste : Community Manager (1€ par code utilisé)</h3>
+                <p className="text-gray-600">
+                  Pour devenir un des CM du projet, vous devrez publier régulièrement sur TikTok à propos du projet. Vous pouvez même créer un compte TikTok dédié exclusivement au projet et vous démarquer par votre créativité.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-purple-900 mb-2 text-sm sm:text-base">🎯 Poste : Community Manager (20% commission)</h3>
-              <p className="text-purple-800 text-xs sm:text-sm leading-relaxed">
-                Pour devenir un des 3 CM du projet, vous devrez <strong>créer un compte TikTok dédié exclusivement au projet</strong> et vous démarquer par votre créativité.
-                Une fois le poste obtenu, vous devrez maintenir une fréquence de <strong>1 à 3 TikToks par jour</strong> pour promouvoir le projet, 
-                animer la communauté, et contribuer à la croissance de l'audience.
-                En échange de cet investissement créatif et communautaire, vous recevrez <strong>un code promo personnel et toucherez 20% de commission sur toutes les ventes où votre code promo a été utilisé</strong>.
+            
+            <div className="bg-gradient-to-r from-secondary-50 to-primary-50 border border-secondary-200 rounded-xl p-6 mb-6">
+              <p className="text-secondary-800 leading-relaxed">
+                En échange de cet investissement créatif et communautaire, vous recevrez <strong>un code promo personnel et toucherez 1€ de commission sur toutes les ventes où votre code promo a été utilisé</strong>.
               </p>
             </div>
+
+            <div className="flex items-center space-x-4 mb-6">
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">Conseil pour maximiser vos chances</h3>
+                <p className="text-gray-600">
+                  Rejoignez le Telegram pour vous démarquer ! Partagez vos TikToks, proposez des idées innovantes et montrez votre valeur ajoutée. 
+                  C'est le meilleur moyen de prouver votre motivation et vos compétences.
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Nom complet *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Votre nom complet"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                  placeholder="votre@email.com"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Nom Telegram *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.telegramName}
+                  onChange={(e) => setFormData({ ...formData, telegramName: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                  placeholder="@votre_nom_telegram"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Nom d'utilisateur TikTok *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.tiktokUsername}
+                  onChange={(e) => setFormData({ ...formData, tiktokUsername: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+                  placeholder={tiktokPlaceholder}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Motivation *
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={formData.motivation}
+                onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all duration-300"
+                placeholder="Pourquoi voulez-vous rejoindre ce projet ? Quelle valeur pouvez-vous apporter ?"
+              />
+            </div>
+
+            <div className="flex space-x-4 pt-6">
+              <button
+                type="submit"
+                className="flex-1 btn-primary"
+              >
+                Envoyer ma candidature
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 btn-secondary"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
         </div>
-
-        {/* Info Section */}
-        <div className="p-4 sm:p-6 bg-blue-50 border-b border-blue-100">
-          <div className="flex items-start space-x-3">
-            <div className="p-1.5 sm:p-2 bg-blue-600 rounded-lg flex-shrink-0">
-              <MessageSquare className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">💡 Conseil pour maximiser vos chances</h3>
-              <p className="text-blue-800 text-xs sm:text-sm leading-relaxed">
-                Rejoignez le Telegram pour vous démarquer ! Partagez vos TikToks, proposez des idées innovantes et montrez votre valeur ajoutée. C'est le meilleur moyen de prouver votre motivation et vos compétences.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Form */}
-        <form 
-          onSubmit={handleSubmit} 
-          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
-        >
-          {/* Message d'erreur */}
-          {submitError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{submitError}</p>
-            </div>
-          )}
-
-          {/* Informations personnelles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center space-x-2 text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                <User className="h-4 w-4" />
-                <span>Nom complet *</span>
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="Votre nom complet"
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center space-x-2 text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                <Mail className="h-4 w-4" />
-                <span>Email *</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="votre@email.com"
-              />
-            </div>
-          </div>
-
-          {/* Réseaux sociaux */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
-                Nom Telegram *
-              </label>
-              <input
-                type="text"
-                name="telegram"
-                value={formData.telegram}
-                onChange={handleChange}
-                required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="@votre_nom_telegram"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
-                Nom d'utilisateur TikTok *
-              </label>
-              <input
-                type="text"
-                name="tiktok"
-                value={formData.tiktok}
-                onChange={handleChange}
-                required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder={`@${projectName.replace(/\s+/g, '').toLowerCase()}pseudo`}
-              />
-            </div>
-          </div>
-
-          {/* Motivation */}
-          <div>
-            <label className="flex items-center space-x-2 text-xs sm:text-sm font-medium text-gray-700 mb-2">
-              <MessageSquare className="h-4 w-4" />
-              <span>Motivation *</span>
-            </label>
-            <textarea
-              name="motivation"
-              value={formData.motivation}
-              onChange={handleChange}
-              required
-              rows={4}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-              placeholder="Pourquoi voulez-vous rejoindre ce projet ? Quelle valeur pouvez-vous apporter ?"
-            />
-          </div>
-
-          {/* Créativité */}
-          <div>
-            <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
-              Définir la créativité (optionnel)
-            </label>
-            <textarea
-              name="creativity"
-              value={formData.creativity}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-              placeholder="Comment définissez-vous la créativité ? Comment pensez-vous qu'elle fonctionne ? Que faites-vous pour la provoquer ou la stimuler ? Donnez votre vision personnelle..."
-            />
-          </div>
-
-          {/* Modèle d'univers */}
-          <div>
-            <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
-              Imaginez un modèle d'univers créatif (optionnel)
-            </label>
-            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-              Créez un univers imaginaire qui n'a pas besoin de correspondre au nôtre. L'objectif est d'observer votre façon d'imaginer et de connecter vos idées. Vous pouvez lire l'exemple ci-dessous pour mieux comprendre l'exercice.
-            </p>
-            <textarea
-              name="universeModel"
-              value={formData.universeModel}
-              onChange={handleChange}
-              rows={6}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-              placeholder="Dans ce modèle, toutes les galaxies sont les souvenirs de « Dieu ». Chaque galaxie possède en son centre un trou noir, sauf une : la galaxie du présent, unique, qui abrite un trou blanc.
-
-Ce trou blanc a un double rôle : il maintient les astres en orbite et expulse directement les astres collectées par tous les autres trous noirs de l'univers.
-
-Une fois que la galaxie du présent est suffisamment remplie, un nouveau trou blanc apparaît quelque part dans l'univers. Ce nouvel astre devient le cœur de la nouvelle galaxie du présent, tandis que celle qui l'était juste avant, devient une des galaxies du passé.
-
-Dans ce modèle, le passé et le futur sont une seule et même chose : chaque souvenir, chaque galaxie du passé est aussi un fragment du futur, et chaque futur nourrit, à son tour, la galaxie du présent.
-
-Ce modèle d'univers a été pensé autour du biais cognitif d'heuristique de disponibilité : plus un souvenir est facilement accessible, plus il influence nos choix et notre perception du présent. De la même manière, dans cet univers, les astres les plus proches des trous noirs des galaxies du passé sont plus susceptibles d'entrer dans la galaxie du présent.
-
-Dans ce modèle d'univers, « Dieu » est en quelque sorte dans un rêve, à la fois l'environnement et l'architecte de ce qu'il est en train de construire. Le futur et le passé sont prédéfini dans ce monde ou le destin semble inévitable."
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              {isSubmitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <Send className="h-5 w-5" />
-                  <span>Envoyer ma candidature</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

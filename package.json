@@ -1,26 +1,22 @@
 {
-  "name": "romainflg-fr",
+  "name": "vite-react-typescript-starter",
   "private": true,
-  "version": "2.0.0",
-  "description": "Site officiel de Romain Falanga - romainflg.fr - Projets créatifs et innovants",
-  "author": "Romain Falanga",
-  "homepage": "https://romainflg.fr",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:production": "NODE_ENV=production vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "analyze": "npx vite-bundle-analyzer",
-    "clean": "rm -rf dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0",
+    "firebase": "^12.1.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.8.0"
+    "react-image-crop": "^11.0.10",
+    "react-router-dom": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -34,7 +30,6 @@
     "globals": "^15.9.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "terser": "^5.43.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
     "vite": "^5.4.2"
